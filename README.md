@@ -5,7 +5,7 @@
 ## 🎮 Demonstração
 
 ### 🧠 IA dominando o jogo:
-![IA jogando](assets/preview.gif)
+![IA jogando](./assets/preview.gif)
 
 ## 🚀 Funcionalidades
 
