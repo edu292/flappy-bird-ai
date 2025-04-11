@@ -4,10 +4,10 @@
 
 ## 🎮 Demonstração
 
-### 🧠 IA aprendendo a jogar:
-![Treinamento NEAT](assets/ia_training.gif)
+### Visual do Jogo:
+![Visual do jogo](assets/preview.png)
 
-### ✅ IA dominando o jogo:
+### 🧠 IA dominando o jogo:
 ![IA jogando](assets/ia_playing.gif)
 
 ## 🚀 Funcionalidades
@@ -15,8 +15,6 @@
 - ✅ Clone fiel do Flappy Bird com física básica
 - 🤖 Múltiplos agentes (pássaros) treinados simultaneamente
 - 🧠 IA controlada por redes neurais evoluídas via NEAT
-- 📈 Feedback visual da população e pontuação
-- 💾 Salvamento do melhor genoma
 
 ## 🧩 Tecnologias e Bibliotecas
 
