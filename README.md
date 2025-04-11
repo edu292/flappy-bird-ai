@@ -30,3 +30,9 @@
 |Pular                 |	Espaço ou botão esquerdo do mouse 🖱️ |
 |Alternar IA / Jogador	| Tab                                  |
 |Sair do jogo          |	Fechar janela ou Esc                 |
+
+## ▶️ Como Executar
+1. Instale os requisitos:
+<pre><code> pip install -r requirements.txt </code></pre>
+2. Execute o jogo:
+<pre><code> python game.py </code></pre>
