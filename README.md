@@ -5,7 +5,7 @@
 ## 🎮 Demonstração
 
 ### 🧠 IA dominando o jogo:
-![IA jogando](./assets/preview.gif)
+![jk-ezgif com-video-to-gif-converter (2)](https://github.com/user-attachments/assets/238af4de-ef20-4e04-aef5-02e94dc45771)
 
 ## 🚀 Funcionalidades
 
