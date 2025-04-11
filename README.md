@@ -8,7 +8,7 @@
 ![Visual do jogo](assets/preview.png)
 
 ### 🧠 IA dominando o jogo:
-![IA jogando](assets/ia_playing.gif)
+![IA jogando](assets/ai_playing.gif)
 
 ## 🚀 Funcionalidades
 
