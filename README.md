@@ -4,9 +4,6 @@
 
 ## 🎮 Demonstração
 
-### Visual do Jogo:
-![Visual do jogo](assets/preview.png)
-
 ### 🧠 IA dominando o jogo:
 ![IA jogando](assets/ai-playing.gif)
 
