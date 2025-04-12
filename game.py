@@ -108,11 +108,12 @@ class Pipes:
         self.pipes = []
         self.screen_width = screen_width
         self.screen_height = screen_height
+        self.start_x = 500
         self.build_pipes()
 
     def build_pipes(self):
-        x = 500
-        while x <= self.screen_width + 550:
+        x = self.start_x
+        while x <= self.screen_width + self.start_x + PIPE_WIDTH:
             self.pipes.append(Pipe(x, self.screen_height))
             x += PIPE_WIDTH + PIPE_GAP
 
@@ -130,20 +131,20 @@ class Pipes:
 
 class Game:
     def __init__(self, screen_width, screen_height):
-        self.lost = False
-        self.ai_mode = False
-        self.genomes = []
-        self.neural_networks = []
-        self.BACKGROUND_COLOR = (112, 197, 206)
         self.screen_width = screen_width
         self.screen_height = screen_height
+        self.lost = False
+        self.ai_mode = False
+        self.closest_pipe_index = 0
+        self.genomes = []
+        self.neural_networks = []
         self.birds = [Bird(screen_height)]
+        self.BACKGROUND_COLOR = (112, 197, 206)
         self.grounds = self.create_props(0, 209, 75, SPRITES['ground'])
         self.tress = self.create_props(70, 959, 52, SPRITES['tree'])
         self.buildings = self.create_props(105, 960, 54, SPRITES['building'])
         self.clouds = self.create_props(90, 959, 114, SPRITES['cloud'])
         self.pipes = Pipes(screen_width, screen_height)
-        self.closest_pipe_index = 0
 
     def restart(self):
         self.lost = False
@@ -231,32 +232,42 @@ class Game:
     def draw(self):
         screen.fill(self.BACKGROUND_COLOR)
 
-        for cloud in self.clouds:
-            cloud.draw()
-
-        for building in self.buildings:
-            building.draw()
-
-        for tree in self.tress:
-            tree.draw()
+        for prop in (*self.clouds, *self.buildings, *self.tress):
+            prop.draw()
 
         self.pipes.draw()
 
-        for bird in self.birds:
-            bird.draw()
+        for prop in (*self.birds, *self.grounds):
+            prop.draw()
 
-        for ground in self.grounds:
-            ground.draw()
+    def switch_game_mode(self):
+        if not self.ai_mode:
+            self.lost = False
+            self.birds.clear()
+            self.ai_mode = True
+            start_ai()
+        else:
+            self.ai_mode = False
+            self.genomes.clear()
+            self.neural_networks.clear()
+            self.birds = [Bird(SCREEN_HEIGHT)]
+            self.restart_pipes()
+
+    def eval_genomes(self, genomes, config):
+        self.restart_pipes()
+        for _, genome in genomes:
+            self.birds.append(Bird(SCREEN_HEIGHT))
+            genome.fitness = 0
+            self.genomes.append(genome)
+            net = neat.nn.FeedForwardNetwork.create(genome, config)
+            self.neural_networks.append(net)
+        while len(game.birds) > 0:
+            if not self.ai_mode:
+                exit()
+            clock.tick(10)
 
 
-def move_props(props, speed):
-    for prop in props:
-        prop.rectangle.x += speed
-        if prop.rectangle.right <= 0:
-            prop.rectangle.x += len(props) * prop.width
-
-
-def run_ai():
+def start_ai():
     config_file_path = 'config.txt'
     config = neat.config.Config(
         neat.DefaultGenome,
@@ -266,25 +277,14 @@ def run_ai():
         config_file_path
     )
     population = neat.Population(config)
-    thread = threading.Thread(target=lambda: population.run(eval_genomes, 50))
-    thread.daemon = True
-    thread.start()
+    threading.Thread(target=lambda: population.run(game.eval_genomes, 50), daemon=True).start()
 
-def eval_genomes(genomes, config):
-    game.birds = []
-    game.restart_pipes()
-    game.ai_mode = True
-    game.lost = False
-    for _, genome in genomes:
-        game.birds.append(Bird(SCREEN_HEIGHT))
-        genome.fitness = 0
-        game.genomes.append(genome)
-        net = neat.nn.FeedForwardNetwork.create(genome, config)
-        game.neural_networks.append(net)
-    while len(game.birds) > 0:
-        if not ai_mode:
-            exit()
-        clock.tick(10)
+
+def move_props(props, speed):
+    for prop in props:
+        prop.rectangle.x += speed
+        if prop.rectangle.right <= 0:
+            prop.rectangle.x += len(props) * prop.width
 
 
 pygame.init()
@@ -292,7 +292,6 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
 clock = pygame.Clock()
 game = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
 
-ai_mode = False
 running = True
 while running:
     for event in pygame.event.get():
@@ -304,16 +303,7 @@ while running:
             if event.key == pygame.K_SPACE:
                 game.input()
             elif event.key == pygame.K_TAB:
-                if not ai_mode:
-                    ai_mode = True
-                    run_ai()
-                else:
-                    game.ai_mode = False
-                    ai_mode = False
-                    game.genomes.clear()
-                    game.neural_networks.clear()
-                    game.birds = [Bird(SCREEN_HEIGHT)]
-                    game.restart_pipes()
+                game.switch_game_mode()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 game.input()
