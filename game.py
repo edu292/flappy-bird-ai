@@ -1,27 +1,30 @@
 from random import randint
 import threading
+import sys
+import os
 import neat
 import pygame
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 
 SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 750
 BIRD_X = 200
 GRAVITY = 1.2
 JUMP_SPEED = -12
-GAME_SPEED = -4
+GAME_SPEED = -6
 PIPE_WIDTH = 86
 PIPE_GAP = 200
-
-PIPE_SPRITE = pygame.image.load('sprites/cano.png')
-SPRITES = {'bird': [pygame.image.load('sprites/flap1.png'),
-                    pygame.image.load('sprites/flap2.png'),
-                    pygame.image.load('sprites/flap3.png')],
-           'pipe': [PIPE_SPRITE,
-                    pygame.transform.rotate(PIPE_SPRITE, 180)],
-           'ground': pygame.image.load('sprites/chao.png'),
-           'tree': pygame.image.load('sprites/arvores.png'),
-           'building': pygame.image.load('sprites/predios.png'),
-           'cloud': pygame.image.load('sprites/nuvens.png')}
 
 
 class Bird:
@@ -32,7 +35,7 @@ class Bird:
         self.on_ground = False
         self.sprites = SPRITES['bird']
         self.default_y = screen_height // 2
-        self.rectangle = pygame.Rect(BIRD_X, self.default_y, 50, 40)
+        self.rectangle = pygame.FRect(BIRD_X, self.default_y, 50, 40)
         self.angle = 0
         self.vertical_speed = 0
         self.angle_speed = -3
@@ -70,7 +73,7 @@ class Bird:
 class Prop:
     def __init__(self, x, y, width, height, sprite):
         self.width = width
-        self.rectangle = pygame.Rect(x, y, width, height)
+        self.rectangle = pygame.FRect(x, y, width, height)
         self.sprite = sprite
 
     def draw(self):
@@ -82,9 +85,9 @@ class Pipe:
         self.middle_y_screen = screen_height // 2
         self.height = 836
         self.gap = 200
-        self.upper_rectangle = pygame.Rect(x, 0, 86, self.height)
+        self.upper_rectangle = pygame.FRect(x, 0, 86, self.height)
         self.upper_sprite, self.bottom_sprite = SPRITES['pipe']
-        self.bottom_rectangle = pygame.Rect(x, 0, 86, self.height)
+        self.bottom_rectangle = pygame.FRect(x, 0, 86, self.height)
         self.rectangles = [self.upper_rectangle, self.bottom_rectangle]
         self.opening_y = 0
         self.random_opening()
@@ -217,9 +220,9 @@ class Game:
             return
         move_props(self.grounds, GAME_SPEED)
         self.pipes.move(GAME_SPEED)
-        move_props(self.tress, int(0.75 * GAME_SPEED))
-        move_props(self.buildings, int(0.5 * GAME_SPEED))
-        move_props(self.clouds, int(0.25 * GAME_SPEED))
+        move_props(self.tress, 0.75 * GAME_SPEED)
+        move_props(self.buildings, 0.5 * GAME_SPEED)
+        move_props(self.clouds, 0.25 * GAME_SPEED)
 
         if self.pipes.pipes[self.closest_pipe_index].upper_rectangle.right < BIRD_X:
             self.closest_pipe_index += 1
@@ -268,7 +271,7 @@ class Game:
 
 
 def start_ai():
-    config_file_path = 'config.txt'
+    config_file_path = resource_path('config.txt')
     config = neat.config.Config(
         neat.DefaultGenome,
         neat.DefaultReproduction,
@@ -288,7 +291,22 @@ def move_props(props, speed):
 
 
 pygame.init()
+icon = pygame.image.load(resource_path('flap.ico'))
+pygame.display.set_icon(icon)
+pygame.display.set_caption('Flappy Bird')
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), vsync=1)
+
+PIPE_SPRITE = pygame.image.load(resource_path('sprites/cano.png')).convert_alpha()
+SPRITES = {'bird': [pygame.image.load(resource_path('sprites/flap1.png')).convert_alpha(),
+                    pygame.image.load(resource_path('sprites/flap2.png')).convert_alpha(),
+                    pygame.image.load(resource_path('sprites/flap3.png')).convert_alpha()],
+           'pipe': [PIPE_SPRITE,
+                    pygame.transform.rotate(PIPE_SPRITE, 180)],
+           'ground': pygame.image.load(resource_path('sprites/chao.png')).convert_alpha(),
+           'tree': pygame.image.load(resource_path('sprites/arvores.png')).convert_alpha(),
+           'building': pygame.image.load(resource_path('sprites/predios.png')).convert_alpha(),
+           'cloud': pygame.image.load(resource_path('sprites/nuvens.png')).convert_alpha()}
+
 clock = pygame.Clock()
 game = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
 
